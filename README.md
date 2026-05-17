@@ -1,172 +1,163 @@
-# Part 3 — NLP and Sequence Modeling Mini Project
+Part 3 — NLP and Sequence Modeling Mini Project
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python) ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange?logo=tensorflow) ![NLP](https://img.shields.io/badge/Task-Sentiment%20Classification-purple) ![License](https://img.shields.io/badge/License-MIT-brightgreen)
+📌 Problem Statement
 
----
+In this project, I built a complete NLP pipeline to classify customer support messages into different sentiment categories. The objective was to understand how both traditional machine learning methods and deep learning models perform on text classification tasks.
 
-## 📌 Problem Statement
+The messages are classified into three sentiment labels:
 
-Build a complete NLP pipeline to classify customer support messages into three sentiment categories:
+Label	Meaning
+positive	Customer is happy or satisfied
+neutral	Informational message with no strong sentiment
+negative	Complaint or frustrated response
 
-| Label | Meaning |
-|---|---|
-| `positive` | Customer is satisfied / happy |
-| `neutral` | Informational or no strong sentiment |
-| `negative` | Customer is frustrated / complaining |
+To compare performance, I implemented:
 
-Two approaches are compared: a **traditional TF-IDF + Logistic Regression baseline** and a deep learning **Bidirectional LSTM** with learned word embeddings.
-
----
-
-## 📂 Repository Structure
-
-```
+A traditional TF-IDF + Logistic Regression model
+A deep learning Bidirectional LSTM model with trainable embeddings
+📂 Repository Structure
 part-3-nlp-sequence-modeling/
 │
-├── README.md                              ← You are here
-├── notebook.ipynb                         ← All 6 tasks
+├── README.md
+├── notebook.ipynb
 ├── requirements.txt
 ├── customer_support_text_classification.csv
 │
 └── results/
-    ├── task1_eda.png                      ← Class distribution + word counts
-    ├── task2_top_words.png                ← Top 15 words per class
-    ├── task4_baseline_confusion.png       ← Baseline model confusion matrices
-    ├── task5_lstm_training.png            ← Bi-LSTM training curves
-    ├── model_evaluation.png              ← ✅ Full evaluation dashboard
-    └── sample_predictions.txt            ← ✅ 10 inference examples
-```
+    ├── task1_eda.png
+    ├── task2_top_words.png
+    ├── task4_baseline_confusion.png
+    ├── task5_lstm_training.png
+    ├── model_evaluation.png
+    └── sample_predictions.txt
+📊 Dataset Description
 
----
+Dataset: customer_support_text_classification.csv
 
-## 📊 Dataset Description
+The dataset contains 1,500 customer support messages collected from different communication channels such as chat, email, phone, and social media.
 
-**File:** `customer_support_text_classification.csv`
+Dataset Details
+Property	Value
+Total Records	1,500
+Columns	ticket_id, channel, customer_message, sentiment_label, word_count, urgent_flag
+Classes	positive, neutral, negative
+Distribution	Nearly balanced
+Average Message Length	Around 22 words
 
-| Property | Value |
-|---|---|
-| Records | 1,500 customer support messages |
-| Columns | ticket_id, channel, customer_message, sentiment_label, word_count, urgent_flag |
-| Classes | 3 (positive: 479, neutral: 524, negative: 497) |
-| Balance | Nearly balanced — no oversampling needed |
-| Avg. word count | ~22 words per message |
-| Channels | Chat, Email, Phone, Social |
+Since the dataset was already balanced, I did not apply any oversampling or undersampling techniques.
 
----
+🔧 Task 2 — Text Preprocessing
 
-## 🔧 Task 2 — Preprocessing Pipeline
+Before training the models, I cleaned and processed the raw text data to remove unnecessary information and reduce noise.
 
-```
+Preprocessing Steps
 Raw Text
-  ↓  lowercase
-  ↓  remove URLs, ticket numbers, digits
-  ↓  remove punctuation
-  ↓  tokenize (split on whitespace)
-  ↓  remove stopwords (170 English stopwords)
-  ↓  remove tokens with length ≤ 2
-Clean Token List
-```
+   ↓
+Convert to lowercase
+   ↓
+Remove URLs, numbers, and ticket IDs
+   ↓
+Remove punctuation
+   ↓
+Tokenization
+   ↓
+Remove stopwords
+   ↓
+Remove very short words
+   ↓
+Clean Tokens
 
----
+The preprocessing pipeline helped improve the quality of input text before vectorization and model training.
 
-## 🔢 Task 3 — Vectorization
+🔢 Task 3 — Text Vectorization
 
-| Method | Shape | Captures Order | Use |
-|---|---|---|---|
-| **Bag of Words** | (1200, 6000) sparse | No | Naive Bayes baseline |
-| **TF-IDF** | (1200, 6000) sparse | No | Logistic Regression baseline |
-| **Tokenizer sequences** | (1200, 50) integer | Yes | LSTM input |
-| **Embedding layer** | (batch, 50, 64) dense | Yes | Learned representations |
+Machine learning models cannot work directly with text, so the messages were converted into numerical representations using different vectorization methods.
 
-### Why must text be vectorized?
-Machine learning models operate on **numbers**, not strings. Vectorization maps each text to a fixed-length numerical array. Without this conversion, no model can process, compare, or classify text.
+Method	Shape	Captures Word Order	Purpose
+Bag of Words	(1200, 6000) sparse matrix	No	Naive Bayes
+TF-IDF	(1200, 6000) sparse matrix	No	Logistic Regression
+Token Sequences	(1200, 50) integer sequences	Yes	LSTM input
+Embedding Layer	(batch, 50, 64) dense vectors	Yes	Semantic learning
+Why Vectorization is Needed
 
----
+Models can only process numbers, not raw text. Vectorization converts each sentence into a numerical format that the model can understand and learn from.
 
-## 🏋️ Task 4 — Baseline Models
+🏋️ Task 4 — Baseline Models
 
-| Model | Vectorization | Test Accuracy | Macro F1 |
-|---|---|---|---|
-| Naive Bayes | Bag of Words | ~74% | ~0.74 |
-| **Logistic Regression** | **TF-IDF** | **~79%** | **~0.79** |
+I first trained traditional machine learning models to create a baseline for comparison.
 
-Logistic Regression wins the baseline comparison — TF-IDF's IDF weighting suppresses common non-informative words more effectively than raw counts.
+Model	Vectorization	Test Accuracy	Macro F1
+Naive Bayes	Bag of Words	~74%	~0.74
+Logistic Regression	TF-IDF	~79%	~0.79
 
----
+Among the baseline models, Logistic Regression performed better because TF-IDF gives lower importance to common words and highlights more meaningful words.
 
-## 🔁 Task 5 — Sequence Model: Bidirectional LSTM
+🔁 Task 5 — Bidirectional LSTM Model
 
-```
-Input sequence  (batch × 50 integer tokens)
-      │
-Embedding(8000 → 64)      Word embeddings learned from scratch
-      │
-SpatialDropout1D(0.2)     Regularise embedding features
-      │
-Bidirectional LSTM(64)    Left-to-right + right-to-left reading
-  return_sequences=True   → (batch × 50 × 128)
-      │
-GlobalMaxPooling1D        → (batch × 128)
-      │
-Dense(64, ReLU) → Dropout(0.4)
-      │
-Dense(3, Softmax)         → P(negative), P(neutral), P(positive)
+After the baseline models, I implemented a Bidirectional LSTM model to capture contextual and sequential information from the text.
 
-Loss      : Categorical Cross-Entropy
-Optimiser : Adam (lr = 0.001)
-Stopping  : EarlyStopping (patience=8, restore best weights)
-```
+Model Architecture
+Input Sequence (50 tokens)
+        │
+Embedding Layer
+        │
+SpatialDropout1D(0.2)
+        │
+Bidirectional LSTM(64)
+        │
+GlobalMaxPooling1D
+        │
+Dense(64, ReLU)
+        │
+Dropout(0.4)
+        │
+Dense(3, Softmax)
+Training Details
+Parameter	Value
+Loss Function	Categorical Cross-Entropy
+Optimizer	Adam
+Learning Rate	0.001
+Early Stopping	Patience = 8
+Final Performance
 
-**Result:** Bi-LSTM achieves **~84% accuracy / ~0.84 Macro F1** — a meaningful improvement over the TF-IDF baseline due to capturing word order and contextual relationships.
+The Bidirectional LSTM achieved:
 
----
+Accuracy: ~84%
+Macro F1 Score: ~0.84
 
-## 💬 Task 6 — Attention & Transformer Reflection
+The performance improvement came from the model’s ability to understand word order and contextual relationships between words.
 
-### RNN Limitation
-Vanilla RNNs compress all context into a single hidden state vector. For long sequences, early information is overwritten — the model **forgets** important context from many steps back.
+💬 Task 6 — Attention and Transformers
+Limitation of Basic RNNs
 
-### LSTM Solution
-LSTMs add a dedicated **cell state** with three gates (forget / input / output) that allow gradients to flow unchanged across many steps. This solves the vanishing gradient problem and enables learning dependencies up to ~100 tokens apart.
+Traditional RNNs struggle with long sequences because earlier information gradually gets forgotten as the sequence becomes longer.
 
-### Attention Mechanism
-Instead of relying on a single compressed context vector, attention computes a **weighted sum of all encoder states** for each decoder step. The model explicitly learns *which* past tokens to focus on — enabling perfect recall of any position regardless of distance.
+How LSTM Solves This
 
-### Transformers
-Replace recurrence entirely with **Multi-Head Self-Attention** — every token attends to every other token simultaneously. This is fully parallelisable (unlike sequential LSTM), scales to billions of parameters, and powers BERT, GPT-4, Claude, Llama-3, and all modern LLMs.
+LSTMs use memory cells and gates to preserve important information for longer durations, which helps in learning long-term dependencies.
 
----
+Attention Mechanism
 
-## 📊 Final Results
+Attention helps the model focus on the most relevant words in a sequence instead of compressing all information into a single vector.
 
-| Model | Accuracy | Macro F1 | Sequence Aware |
-|---|---|---|---|
-| BoW + Naive Bayes | ~74% | ~0.74 | No |
-| TF-IDF + LR | ~79% | ~0.79 | No |
-| **Bi-LSTM** | **~84%** | **~0.84** | **Yes** |
+Transformers
 
----
+Transformers replace recurrence completely with self-attention mechanisms, allowing faster training and better scalability. Modern models such as BERT, GPT, Claude, and Llama are all based on Transformer architectures.
 
-## 🔮 Inference Examples
+📊 Final Comparison
+Model	Accuracy	Macro F1	Sequence Aware
+BoW + Naive Bayes	~74%	~0.74	No
+TF-IDF + Logistic Regression	~79%	~0.79	No
+Bidirectional LSTM	~84%	~0.84	Yes
+🔮 Sample Predictions
+predict_sentiment("I am really satisfied with the support team.")
+# → POSITIVE
 
-```python
-predict_sentiment("I am absolutely delighted with the service!")
-# → POSITIVE  (91% confidence)
+predict_sentiment("My refund is still pending after two weeks.")
+# → NEGATIVE
 
-predict_sentiment("My refund has been pending for 3 weeks. Unacceptable.")
-# → NEGATIVE  (89% confidence)
-
-predict_sentiment("How do I update my payment method?")
-# → NEUTRAL   (82% confidence)
-```
-
----
-
-## 🚀 How to Run
-
-```bash
+predict_sentiment("How can I reset my password?")
+# → NEUTRAL
+🚀 How to Run
 pip install -r requirements.txt
 jupyter notebook notebook.ipynb
-```
-
-Or open in **Google Colab** — upload notebook + CSV, then Runtime → Run all.
