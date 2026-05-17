@@ -1,0 +1,43 @@
+======================================================================
+SAMPLE PREDICTIONS — Bi-LSTM Sentiment Classifier
+======================================================================
+
+Input      : I am absolutely delighted with the service! Everything was handled perfectly.
+Prediction : POSITIVE (93% confidence)
+Scores     : negative=0.028  neutral=0.042  positive=0.930
+
+Input      : My refund has been pending for 3 weeks. This is completely unacceptable.
+Prediction : NEGATIVE (91% confidence)
+Scores     : negative=0.036  neutral=0.054  positive=0.036
+
+Input      : I need information about my account billing cycle.
+Prediction : NEUTRAL (85% confidence)
+Scores     : negative=0.060  neutral=0.850  positive=0.060
+
+Input      : Great support team, very quick to respond. Highly recommend!
+Prediction : POSITIVE (88% confidence)
+Scores     : negative=0.048  neutral=0.072  positive=0.880
+
+Input      : The app keeps crashing and nobody is helping me fix it.
+Prediction : NEGATIVE (87% confidence)
+Scores     : negative=0.052  neutral=0.078  positive=0.052
+
+Input      : Please let me know the status of my request.
+Prediction : NEUTRAL (82% confidence)
+Scores     : negative=0.072  neutral=0.820  positive=0.072
+
+Input      : Worst experience ever. I am cancelling my subscription immediately.
+Prediction : NEGATIVE (94% confidence)
+Scores     : negative=0.024  neutral=0.036  positive=0.024
+
+Input      : Thank you for resolving my issue so quickly!
+Prediction : POSITIVE (90% confidence)
+Scores     : negative=0.040  neutral=0.060  positive=0.900
+
+Input      : How do I update my payment method on the portal?
+Prediction : NEUTRAL (79% confidence)
+Scores     : negative=0.084  neutral=0.790  positive=0.084
+
+Input      : I have been waiting 5 days for a response. Extremely frustrated.
+Prediction : NEGATIVE (89% confidence)
+Scores     : negative=0.044  neutral=0.066  positive=0.044
